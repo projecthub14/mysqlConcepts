@@ -1,0 +1,143 @@
+connect to mysql from terminal :
+mysql -u root -p
+password : root
+
+Groom (Cloud 9) : mysql-ctl cli
+show databases;
+use test_app
+
+
+MySql is an open source RDMS which uses client server model .
+In real world application MySql will be running on different machine than the application.
+Application uses client to interact with server
+
+
+Data Types :
+Number Data type : INTEGER , SMALLINT , FLOAT , DOUBLE
+String Type : VARCHAR , CHAR ,TEXT , TINYTEXT
+DateTime Type : DATE , TIME , DATETIME and TIMESTAMP
+
+Tables :
+1. Table is collection of related data held in table format within database
+2. A table is set of data elements ( values) using a model of vertical columns ( identified by name) and horizontal rows.
+3.A specific of column that uniquely identify rows is called primary key
+
+CREATE TABLE ORDERS(
+ORDER_ID INT AUTO_INCREMENT,
+ITEM_NAME VARCHAR(300) NOT NULL,
+ITEM_COUNT INT NOT NULL,
+CUSTOMER_NAME VARCHAR(200) NOT NULL,
+CUSTOMER_ADDRESS VARCHAR(500) NOT NULL,
+CREATED_TIME TIMESTAMP NOT NULL,
+constraint order_pk
+primary key (order_id));
+
+qualifier  : AUTO_INCREMENT ( generate unique identity for new rows)
+constraint : NOT NULL
+constraint for this table is order_id is unique identifer of this table
+
+desc orders;
+
+ALTER TABLE ORDERS ADD COLUMN customer_name varchar(255) not null;
+ALTER TABLE orders DROP COLUMN ITEM_NAME;
+
+to support orders with multiple type of items -> use foreign keys
+
+1. CREATE TABLE order_item(
+order_item_id INT AUTO_INCREMENT,
+order_item_name varchar(300) NOT NULL,
+order_item_count INT NOT NULL,
+ORDER_ID INT NOT NULL,
+constraint order_item_pk primary key (order_item_id),
+constraint order_item_orders_fk foreign key(order_item_id) references orders (ORDER_ID));
+
+JDBC :
+1. Java API is contract to interact with RDBMS
+2. database vendors mysql , postgresql provides implementation of contract
+3. these implementations are called JDBC drivers
+4. with JDBC it is easier to switch the connection to different databases
+
+JDBC functions :
+1. it allows the application to connect to database
+2. using connection send SQL statements to database
+3. process results of sql statments
+
+Applicatin Code
+|
+JDBC API ( selects driver)
+|
+JDBC Driver ( implements protocol that datbase server understands) -> Database
+
+
+JDBC interfaces all implementations use :
+1. DriverManager - selecting appropriate driver and connecting to database
+     - returns connection object
+2. Connection - application connection to database and allows application to send SQL statements      to it.
+3. Statement - execute SQL statement and returns its result
+4. ResultSet - represent set of results from database usually acquired by executing statement
+
+
+CREATE USER to give in jdbc url :
+
+
+
+3. ResultSet -> results are held in resultset object
+-> it points to current row of data
+-> rs.next() -> moves cursor to next row
+-> rs.getInt("ORDERID") -> get by type of column
+
+4. JDBC API provides 3 interfaces to execute different types of SQL queries
+a. Statement -> to execute normal queries
+b. PreparedStatement -> to execute Parameterized sql queries
+c. CallableStatement -> used to execute stored procedures
+
+a. Statement -> used to send non Parameterized SQL queries to database.
+-> to execute DDL statement which are typically executed once
+conn.createStatement()
+
+b. PreparedStatement ->
+-> to execute Parameterized sql queries , although parameters are not mandatory
+-> Since PreparedStatement is pre-compiled by database , it saves datatbase from regenerating query plan for each
+   execution of the PreparedStatement
+-> Its prefered way of executing SQL queries when we are executing particular query multiple times
+-> used to execute dynamic queries
+-> it exends Statement interface
+-> We can pass parameters to SQL query at runtime
+
+c. CallableStatement ->
+-> Callable statement are used to execute stored procedure.
+-> stored procedure is a group of 1 or more SQL statements stored in database as procedure or function
+-> in SQL , stored procedures are invoked using CALL statement , hence the name CallableStatement
+
+JDBC Transaction ->
+-> let you control how and when a transaction should commit to database
+-> by default , data will be commited to database when executeUpdate() is called
+
+to put in transaction we can use :
+dbConnection.setAutoCommit(false) -> transaction block start
+....
+....
+all queries
+...
+dbConnection.commit() -> transaction block end
+
+
+Flyway : Database Migration
+
+Manual migration of database from Development Server to integration server to test server to production is error prone
+
+https://www.youtube.com/watch?v=DMGIRLSDO1A
+
+Flyway -> it automated database migration tool
+-> its version control of database changes
+
+https://flywaydb.org/getstarted/why
+
+Java Persistance API :
+1. allows to work directly with java object and translates them to relational model
+2. Mapping java objects to relational database is called object relational mapping
+
+
+
+
+
