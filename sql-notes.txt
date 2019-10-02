@@ -1,0 +1,23 @@
+connect to mysql from terminal :
+mysql -u root -p
+password : root
+
+Groom (Cloud 9) : mysql-ctl cli 
+show databases;
+use test_app
+
+
+MySql is an open source RDMS which uses client server model . 
+In real world application MySql will be running on different machine than the application.
+Application uses client to interact with server
+
+
+Data Types : 
+Number Data type : INTEGER , SMALLINT , FLOAT , DOUBLE
+String Type : VARCHAR , CHAR ,TEXT , TINYTEXT 
+DateTime Type : DATE , TIME , DATETIME and TIMESTAMP
+
+Tables :
+1. Table is collection of related data
+
+
