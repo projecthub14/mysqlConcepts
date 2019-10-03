@@ -1,0 +1,169 @@
+In Java Object has lifecycle -
+1. It gets instantiated and if its not used garbagecollected
+
+Entity has lifecycle
+1. When entity is created it is in Transient state
+2. EntityManager is not aware of entity yet
+3. once entity is persisted using persist() then it enters persistent state
+4. in persistent state entity links to table that represent this object in database
+5. any changes made to entity will be propogated to database until database is closed
+6. if entity in persistent state should not be propogated then it needs to be detached using detach()
+7. calling detach() puts in detached state -> garbage collected
+8. if entity is removed from database then entity is in removed state -> garbage collected
+9. entity enters persistent state through find() or JPA query
+
+
+Entity RelationShip :
+Order and Order_item
+
+1. An Order contains many different order items
+2. Order has 1 to many relation with OrderItem
+
+Many to many relation :
+Book ad Author
+1.To map Many-Many relationship we need to use additional table called mapping table or Join table
+2. Book_Author is the mapping table which contains primary key of both book and author
+
+In Book entity
+  @ManyToMany       mapping table name                          foreign key of book table
+    @JoinTable(name = "book_author" , joinColumns= @JoinColumn(name="book_id"),
+            inverseJoinColumns = @JoinColumn(name="author_id")) foreign key of author table
+
+
+In Author Entity : states  mapping is done in book entity type
+    @ManyToMany(mappedBy="authors")
+    private List<Book> authors = new ArrayList();
+
+Types :
+1. one-to-one : Order and Address
+2. one-to-many : Order and Order_Item
+3. Many-to-one : Order_item and Order
+4. Many-to Many - entity instances cane be related to multiple instances of each other
+ex : Course and Student
+
+Direction in Entity Relationships :
+1. unidirectional - has only owning side
+
+	@OneToOne(cascade=CascadeType.ALL)
+	@JoinColumn(name="instructor_detail_id")
+	private InstructorDetail instructorDetail;
+
+no mapping for reverse side
+------------------------------------------
+
+2. bidirectional :
+Instructor :Owning side ( has foreign key)
+
+@OneToOne(cascade=CascadeType.ALL)
+	@JoinColumn(name="instructor_detail_id")
+	private InstructorDetail instructorDetail;
+
+InstructorDetail : Reverse side
+@OneToOne(mappedBy ="instructorDetail",
+			cascade = {CascadeType.DETACH,CascadeType.MERGE , CascadeType.PERSIST,
+					      CascadeType.REFRESH})
+	private Instructor instructor;
+------------------------------------------
+
+Course / Owning side ( includes foreign key) :
+@ManyToOne(cascade = {CascadeType.PERSIST , CascadeType.REFRESH ,
+			CascadeType.DETACH,CascadeType.MERGE})
+	@JoinColumn(name="instructor_id")  // instructor_id is foreign key of course table
+	private Instructor instructor; //this is relationship property is referred by mappedBy in Instructor Entity
+
+Instructor  / reverse side (includes mappedBy) :
+@OneToMany(mappedBy="instructor",
+			   cascade = {CascadeType.PERSIST , CascadeType.REFRESH ,
+					CascadeType.DETACH,CascadeType.MERGE})
+	private List<Course> courses;
+
+------------------------------------------
+@ManyToMany :
+Course  (owning side) :
+@ManyToMany(cascade = {CascadeType.PERSIST , CascadeType.REFRESH ,
+			CascadeType.DETACH,CascadeType.MERGE},fetch=FetchType.LAZY)
+	@JoinTable(
+			name = "course_student", // mapping table
+			joinColumns = @JoinColumn(name="course_id"),
+			inverseJoinColumns =@JoinColumn(name="student_id"))
+	private List<Student> students;
+-------------------------------
+Student (owning side) :
+@ManyToMany(cascade = {CascadeType.PERSIST , CascadeType.REFRESH ,
+			CascadeType.DETACH,CascadeType.MERGE},fetch=FetchType.LAZY)
+@JoinTable(
+			name = "course_student",
+			joinColumns = @JoinColumn(name="student_id"),
+			inverseJoinColumns =@JoinColumn(name="course_id"))
+private List<Course> courses;
+
+------------------------------------------
+
+Cascade operation :
+1. Order item has no meaning without Order so persist Order and OrderItem at same item
+2. Cascade operation on entity and associated entities
+3. ALL cascade operations are defined to parent entity's related entity (ORDER)
+4. CASCADE Types : {DETACH, MERGE, PERSIST,REFEREH,REMOVE}
+ex : IF parent entiy is detached from persistence context then related entity will also be detached
+
+
+
+FetchType :
+FetchTypes defines when hibernate gets the related entities from the databse
+
+you can either get the all relationships with one query
+or fetch only root entity and initialize the relationships as you need them
+
+1. For one to many default fetch type is Lazy -> so order item is fetched only if it is accessed
+2. EAGER -> both order and orderItem are fetched/loaded together
+DEFAULT relationships :
+1. FetchType.EAGER -> All to one relationships
+2. FetchType.Lazy -> All to many relationships
+
+fetch = FetchType.Eager
+
+1. When an OrderItem entity is fetched from the database , Hibernate will also get related Order entity -> it joines the
+related entity and gets all of them in one query even if its not used in business code
+This will slow down application.
+
+JPQL :
+1.  fetch() -> loads entity using its primary key
+2.  JPQL operates on entity stored in relational database
+3. similar to SQL
+4. it operates on entities not on tables
+5. JPQL  is translated to SQL
+6. Database Portability
+7. JPQL doesnot support all SQL operations in that case use JPA lets u use SQL
+
+-> FROM clause -> uses entity model
+SELECT a FROM AUTHOR a
+a -> identification varianle also called as alias is used in all
+     other parts of query to reference entity
+
+-> WHERE clause -> to restrict the selected entities ti the ones for your use case
+
+basic operations -> AND , OR ,NOT
+= , <> , > , => , < , <= , BETWEEN ,LIKE '%and%' % - any character sequence , _ instead of % -> as single character wildcard
+IS NULL , IS NOT NULL
+IS EMPTY , IS NOT EMPTY
+size(authors.books) > 2
+:id  -> setparameter("id",orderId);
+
+Spring Data JPA :
+-> layer on top of JPA
+-> seemles integration with Spring
+-> Reduces boilerplate
+-> basic abstract spring data JPA provides is Repository
+contains methods to perform CRUD on entity
+we can follow our own methods
+-> Spring Data generate JPQL query from Repository method name
+
+Repository :
+1. Order Repository is interface
+Spring provides implementation of OrderRepository at runtime
+2.findCustomerName(String customerName) ->at runtime Spring data picks method name and finds out which field it queries against
+and write the query for that field in runtime
+
+
+
+
