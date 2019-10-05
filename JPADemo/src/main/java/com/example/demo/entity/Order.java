@@ -36,7 +36,6 @@ public class Order {
         this.orderItem = orderItem;
     }
 
-
     public int getOrderId() {
         return orderId;
     }
