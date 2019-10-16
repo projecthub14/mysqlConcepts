@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 
 @SpringBootApplication
@@ -51,9 +52,9 @@ public class DemoApplication {
 
 			System.err.println("Order ID:" +order.getOrderId() );
 
-			//Optional<Order> orderRead = repository.findByCustomerName("Michel Adam");
+			Optional<Order> orderRead = repository.findByCustomerName("Michel Adam");
 			List<Order> orderList = repository.findAll();
-			//orderRead.ifPresent(value -> System.err.println("Order: " + value));
+			orderRead.ifPresent(value -> System.err.println("Order: " + value));
 
 		};
 	}
